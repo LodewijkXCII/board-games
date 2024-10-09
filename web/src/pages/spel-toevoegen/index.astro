@@ -1,0 +1,135 @@
+---
+import Layout from "../../layouts/layout.astro";
+---
+
+<Layout title="Board Games!" discription="Zijn echt heel leuk">
+  <section class="container-fluid">
+    <h1>Spel Toevoegen</h1>
+
+    <!-- <fieldset>
+      <input
+        type="search"
+        name="search"
+        placeholder="Search"
+        aria-label="Search"
+        id="searchbox"
+      />
+    </fieldset>
+    <small id="invalid-helper"></small> -->
+    <form method="post" id="game-form">
+      <fieldset id="game-info">
+        <label>
+          Titel
+          <input
+            type="text"
+            name="name"
+            id="name"
+            placeholder="Naam"
+            aria-label="Text"
+          />
+        </label>
+        <input
+          type="text"
+          name="originalName"
+          placeholder="Originele naam"
+          id="originalName"
+          aria-label="Disabled input"
+          disabled
+        />
+
+        <label>
+          Minimum spelers
+          <input
+            type="number"
+            name="minplayers"
+            id="minplayers"
+            placeholder="Min spelers"
+            aria-label="Number"
+          />
+        </label>
+        <label>
+          Maximum spelers
+          <input
+            type="number"
+            name="maxplayers"
+            id="maxplayers"
+            placeholder="Max spelers"
+            aria-label="Number"
+          />
+        </label>
+        <label>
+          Beste spelers volgens BGG
+          <input
+            type="text"
+            name="bggbestplayers"
+            id="bggbestplayers"
+            placeholder="BBG best spelers"
+            aria-label="Text"
+          />
+        </label>
+        <input type="submit" value="Subscribe" />
+        <small id="response"> </small>
+      </fieldset>
+    </form>
+  </section>
+</Layout>
+
+<script>
+  //   const searchElement = document.getElementById("searchbox");
+  //   const helper = document.getElementById("invalid-helper");
+  const gameForm = document.getElementById("game-form");
+  const reponseText = document.getElementById("response");
+
+  const formData = {
+    name: document.getElementById("name").value,
+    original_name: document.getElementById("originalName").value,
+    minplayers: document.getElementById("minplayers").value,
+    maxplayers: document.getElementById("maxplayers").value,
+    bggbestplayers: document.getElementById("bggbestplayers").value,
+  };
+
+  //   gameForm.addEventListener("click", (e) => {
+  //     e.preventDefault;
+  gameForm.addEventListener("submit", async (event) => {
+    // stop form submission
+    event.preventDefault();
+
+    const request = new Request("http://localhost:5000/api/v1/board-games/", {
+      method: "POST",
+      body: JSON.stringify(formData),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const response = await fetch(request);
+
+    if (response.status == 200) {
+      reponseText.innerText = "Data is goed ontvangen!";
+    }
+  });
+  //   });
+  //   searchElement.addEventListener("change", async (e) => {
+  //     const searchValue = parseInt(e.target.value, 10);
+
+  //     console.log(searchValue);
+  //     if (searchValue === parseInt(searchValue, 10)) {
+  //       searchElement.setAttribute("aria-invalid", "false");
+  //       helper.innerText = "";
+  //       //   SEARCH BGG INFO
+
+  //       const response = await fetch(
+  //         `http://localhost:5000/api/v1/board-games/bgg?bggid=${searchValue}`
+  //       );
+
+  //       if (response) {
+  //         console.log(response);
+  //         gameForm.classList.remove("visualy-hidden");
+
+  //         // formData.name.value = res.formData.;
+  //       }
+  //     } else {
+  //       searchElement.setAttribute("aria-invalid", "true");
+  //       helper.innerText = "Het BGG-id is een nummer. Probeer het opnieuw";
+  //     }
+  //   });
+</script>

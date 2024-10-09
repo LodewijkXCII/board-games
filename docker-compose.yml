@@ -1,0 +1,58 @@
+services:
+  # Backend service (Node.js)
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: server
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    depends_on:
+      - db
+    networks:
+      - app-network
+    volumes:
+      - ./server:/app  # Enable live reloading for development
+
+  # Frontend service (Astro.js)
+  frontend:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: web
+    ports:
+      - "3000:3000"
+    environment:
+      - PUBLIC_API_URL=http://backend:5000  # Point web to backend
+    depends_on:
+      - backend
+    networks:
+      - app-network
+    volumes:
+      - ./web:/app  # Enable live reloading for development
+
+  # PostgreSQL database service
+  db:
+    image: postgres:14
+    container_name: db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - db-data:/var/lib/postgresql/data  # Named volume for data persistence
+    networks:
+      - app-network
+
+# Volume to persist PostgreSQL data
+volumes:
+  db-data:
+    driver: local  # Ensure data is stored on the local machine
+
+# Define a custom network so services can communicate with each other
+networks:
+  app-network:

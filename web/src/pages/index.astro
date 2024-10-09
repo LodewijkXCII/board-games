@@ -1,0 +1,94 @@
+---
+import Layout from "../layouts/layout.astro";
+
+const getData = async () => {
+  try {
+    const response = await fetch("http://localhost:5000/api/v1/board-games");
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }
+    const boardgames = await response.json();
+
+    return boardgames;
+  } catch (error) {
+    console.error(error.message);
+  }
+};
+
+const boardgames = await getData();
+---
+
+<Layout title="Board Games!" discription="Zijn echt heel leuk">
+  <section class="container-fluid">
+    <h3>Filters:</h3>
+    <div class="filter grid">
+      <label>
+        <input name="terms" type="checkbox" role="switch" id="playedFilter" />
+        <strong>Niet gespeeld</strong>
+      </label>
+      <!-- <input
+        type="search"
+        name="search"
+        placeholder="Search"
+        aria-label="Search"
+        id="search"
+      /> -->
+    </div>
+    <hr />
+    <h3>Spel overzicht</h3>
+    <p>Totaal aantal spellen: {boardgames.length}</p>
+    <div class="board-game-list">
+      {
+        boardgames.map((game) => (
+          <article
+            class="board-game-item"
+            data-played={game.played ? "true" : "false"}
+          >
+            <header>
+              <h4>{game.name}</h4>
+            </header>
+            <p>
+              Voor {game.minplayers} tot {game.maxplayers} spelers. (Beste voor{" "}
+              <strong>{game.bggbestplayers}</strong> spelers)
+            </p>
+            <p>{game.session_count} keer gespeeld</p>
+            <a
+              href={`sessie-toevoegen/${game.id}/${game.name
+                .replace(/ /g, "-")
+                .replace(/[^\w-]+/g, "")
+                .toLowerCase()}`}
+            >
+              Sessie toevoegen
+            </a>
+            <footer class:list={[{ gespeeld: game.played }]}>
+              {game.played ? "Gepeeld" : "Niet gespeeld"}
+            </footer>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+</Layout>
+
+<script>
+  const toggleSwitch = document.getElementById("playedFilter");
+  const gameList = document.querySelectorAll(".board-game-item");
+  const titleList = document.querySelectorAll("h4");
+  const searchBox = document.getElementById("search");
+
+  toggleSwitch.addEventListener("click", () => {
+    if (toggleSwitch.checked) {
+      gameList.forEach((game) => {
+        if (game.dataset.played === "true") {
+          game.classList.add("visualy-hidden");
+        }
+      });
+    } else {
+      gameList.forEach((game) => {
+        if (game.dataset.played === "true") {
+          game.classList.remove("visualy-hidden");
+        }
+      });
+    }
+  });
+</script>

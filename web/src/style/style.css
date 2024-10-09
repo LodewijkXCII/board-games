@@ -1,0 +1,24 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(15ch, 40ch) auto;
+}
+
+.board-game-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(40ch, 50ch));
+  gap: var(--pico-block-spacing-vertical);
+}
+
+.filter {
+  justify-content: center;
+  align-items: center;
+}
+
+.visualy-hidden {
+  display: none;
+}
+
+.gespeeld {
+  background-color: var(--pico-primary-background);
+  color: var(--pico-primary-inverse);
+}
