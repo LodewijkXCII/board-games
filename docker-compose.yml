@@ -14,24 +14,24 @@ services:
     networks:
       - app-network
     volumes:
-      - ./server:/app  # Enable live reloading for development
+      - ./server:/app # Enable live reloading for development
 
   # Frontend service (Astro.js)
-  frontend:
-    build:
-      context: ./web
-      dockerfile: Dockerfile
-    container_name: web
-    ports:
-      - "3000:3000"
-    environment:
-      - PUBLIC_API_URL=http://backend:5000  # Point web to backend
-    depends_on:
-      - backend
-    networks:
-      - app-network
-    volumes:
-      - ./web:/app  # Enable live reloading for development
+  # frontend:
+  #   build:
+  #     context: ./web
+  #     dockerfile: Dockerfile
+  #   container_name: web
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - PUBLIC_API_URL=http://backend:5000  # Point web to backend
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - app-network
+  #   volumes:
+  #     - ./web:/app  # Enable live reloading for development
 
   # PostgreSQL database service
   db:
@@ -44,14 +44,14 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
-      - db-data:/var/lib/postgresql/data  # Named volume for data persistence
+      - db-data:/var/lib/postgresql/data # Named volume for data persistence
     networks:
       - app-network
 
 # Volume to persist PostgreSQL data
 volumes:
   db-data:
-    driver: local  # Ensure data is stored on the local machine
+    driver: local # Ensure data is stored on the local machine
 
 # Define a custom network so services can communicate with each other
 networks:
