@@ -3,8 +3,10 @@ FROM node:20
 
 WORKDIR /app
 
+USER node
+
 COPY package*.json ./
-RUN  npm install -g npm@10.9 && npm install
+RUN chown -R node:node ./node_modules &&  npm install -g npm@10.9 && npm install
 
 COPY . .
 
@@ -12,5 +14,3 @@ EXPOSE 5000
 
 
 CMD ["/bin/sh", "entrypoint.sh"]
-
-
