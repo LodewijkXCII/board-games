@@ -1,0 +1,43 @@
+---
+interface Props {
+  title: string;
+  discription: string;
+}
+
+const { title, discription } = Astro.props;
+
+import "../style/style.css";
+import "../style/pico.jade.min.css";
+
+import Image from "astro/components/Image.astro";
+
+import Logo from "../images/noBgColor.png";
+---
+
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="{Astro.description}" />
+    <meta name="viewport" content="width=device-width initial-scale=1" />
+    <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="discription" content={discription} />
+
+    <title>{title}</title>
+  </head>
+
+  <body>
+    <main class="layout">
+      <aside class="container-fluid">
+        <Image src={Logo} alt="spellenkast logo" />
+        <nav>
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/spel-toevoegen">Spel toevoegen</a></li>
+          </ul>
+        </nav>
+      </aside>
+      <slot />
+    </main>
+  </body>
+</html>

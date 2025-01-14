@@ -1,0 +1,101 @@
+---
+export const prerender = false;
+
+import { Board_Games } from "astro:db";
+import Layout from "../../layouts/layout.astro";
+
+import { db, Game_Sessions as gameSession, eq } from "astro:db";
+import { Players } from "astro:db";
+import { Session_Players } from "astro:db";
+
+let resultFilter;
+const GameID = Astro.url.searchParams.get("game");
+
+// Fetch all game sessions with board game and winner details
+const gameSessionsWithDetails = await db
+  .select({
+    gameSession: gameSession,
+    boardGame: Board_Games,
+    winner: {
+      id: Players.id,
+      name: Players.name,
+    },
+  })
+  .from(gameSession)
+  .innerJoin(Board_Games, eq(Board_Games.id, gameSession.board_games_id))
+  .innerJoin(Players, eq(Players.id, gameSession.winner_player_id));
+
+// Fetch all session players separately and group them manually
+const sessionPlayers = await db
+  .select({
+    gameSessionId: Session_Players.game_sessions_id,
+    player: {
+      id: Players.id,
+      name: Players.name,
+    },
+  })
+  .from(Session_Players)
+  .innerJoin(Players, eq(Players.id, Session_Players.players_id));
+
+// Group players by session ID
+const groupedPlayers = sessionPlayers.reduce(
+  (acc, { gameSessionId, player }) => {
+    if (!acc[gameSessionId]) acc[gameSessionId] = [];
+    acc[gameSessionId].push(player);
+    return acc;
+  },
+  {} as Record<number, { id: number; name: string }[]>
+);
+
+// Merge players into sessions
+const finalResult = gameSessionsWithDetails.map((session) => ({
+  ...session,
+  players: groupedPlayers[session.gameSession.id] || [],
+}));
+
+if (GameID) {
+  resultFilter = finalResult.filter(
+    (session) => session.gameSession.board_games_id == parseInt(GameID)
+  );
+} else {
+  resultFilter = finalResult;
+}
+---
+
+<Layout title="Sessies">
+  <section>
+    <h1>Bekijk alle sessies</h1>
+    {GameID && <a href="/sessie">Bekijk alle sessies</a>}
+
+    <table class="striped">
+      <thead
+        ><tr>
+          <th scope="col">ID</th>
+          <th scope="col">Spel</th>
+          <th scope="col">Datum</th>
+          <th scope="col">Spelers</th>
+          <th scope="col">Winnaar</th>
+          <th scope="col">Punten</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          resultFilter.map(({ gameSession, boardGame, players, winner }) => (
+            <tr>
+              <th scope="row">{gameSession.id}</th>
+              <th>{boardGame.name}</th>
+              <th>{gameSession.play_date.toLocaleDateString()}</th>
+              <th>
+                {players.map((player) => (
+                  <span>{player.name} </span>
+                ))}
+              </th>
+              <th>{winner.name}</th>
+              <th>{gameSession.points}</th>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </section>
+</Layout>

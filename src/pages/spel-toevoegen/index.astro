@@ -1,0 +1,88 @@
+---
+export const prerender = false;
+
+import Layout from "../../layouts/layout.astro";
+
+import { db, Board_Games } from "astro:db";
+let responeText;
+if (Astro.request.method === "POST") {
+  const formData = await Astro.request.formData();
+
+  const formBody = {
+    name: formData.get("name"),
+    minplayers: formData.get("minplayers"),
+    maxplayers: formData.get("maxplayers"),
+    bggbestplayers: formData.get("bggbestplayers"),
+  };
+
+  responeText = await db.insert(Board_Games).values(formBody).returning();
+}
+---
+
+<Layout title="Board Games!" discription="Zijn echt heel leuk">
+  <section class="container-fluid">
+    <h1>Spel Toevoegen</h1>
+
+    <!-- <fieldset>
+      <input
+        type="search"
+        name="search"
+        placeholder="Search"
+        aria-label="Search"
+        id="searchbox"
+      />
+    </fieldset>
+    <small id="invalid-helper"></small> -->
+    <form method="POST" id="game-form">
+      <fieldset id="game-info">
+        <label for="name">
+          Titel
+          <input
+            type="text"
+            name="name"
+            id="name"
+            placeholder="Naam"
+            aria-label="Text"
+          />
+        </label>
+
+        <label for="minplayers">
+          Minimum spelers
+          <input
+            type="number"
+            name="minplayers"
+            id="minplayers"
+            placeholder="Min spelers"
+            aria-label="Number"
+          />
+        </label>
+        <label for="maxplayers">
+          Maximum spelers
+          <input
+            type="number"
+            name="maxplayers"
+            id="maxplayers"
+            placeholder="Max spelers"
+            aria-label="Number"
+          />
+        </label>
+        <label for="bggbestplayers">
+          Beste spelers volgens BGG
+          <input
+            type="text"
+            name="bggbestplayers"
+            id="bggbestplayers"
+            placeholder="BBG best spelers"
+            aria-label="Text"
+          />
+        </label>
+        <input type="submit" value="Spel toevoegen" />
+        {
+          responeText && (
+            <small id="response">{responeText[0].name} toegevoegd!</small>
+          )
+        }
+      </fieldset>
+    </form>
+  </section>
+</Layout>
