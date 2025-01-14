@@ -1,21 +1,18 @@
 ---
 import Layout from "../layouts/layout.astro";
 
-const getData = async () => {
-  try {
-    const response = await fetch("http://localhost:5000/api/v1/board-games");
-    if (!response.ok) {
-      throw new Error(`Response status: ${response.status}`);
-    }
-    const boardgames = await response.json();
+import { db, isNull, count, Game_Sessions, Board_Games, eq } from "astro:db";
 
-    return boardgames;
-  } catch (error) {
-    console.error(error.message);
-  }
-};
-
-const boardgames = await getData();
+const boardgames = await db
+  .select({
+    ...Board_Games,
+    sessionCount: count(Game_Sessions.id).as("session_count"),
+  })
+  .from(Board_Games)
+  .leftJoin(Game_Sessions, eq(Board_Games.id, Game_Sessions.board_games_id))
+  .where(isNull(Board_Games.deleted_at))
+  .groupBy(Board_Games.id)
+  .orderBy(Board_Games.name);
 ---
 
 <Layout title="Board Games!" discription="Zijn echt heel leuk">
@@ -26,13 +23,13 @@ const boardgames = await getData();
         <input name="terms" type="checkbox" role="switch" id="playedFilter" />
         <strong>Niet gespeeld</strong>
       </label>
-      <!-- <input
+      <input
         type="search"
         name="search"
-        placeholder="Search"
+        placeholder="Zoeken"
         aria-label="Search"
         id="search"
-      /> -->
+      />
     </div>
     <hr />
     <h3>Spel overzicht</h3>
@@ -43,6 +40,7 @@ const boardgames = await getData();
           <article
             class="board-game-item"
             data-played={game.played ? "true" : "false"}
+            data-name={game.name}
           >
             <header>
               <h4>{game.name}</h4>
@@ -51,9 +49,15 @@ const boardgames = await getData();
               Voor {game.minplayers} tot {game.maxplayers} spelers. (Beste voor{" "}
               <strong>{game.bggbestplayers}</strong> spelers)
             </p>
-            <p>{game.session_count} keer gespeeld</p>
+            <p>
+              {game.sessionCount} keer gespeeld{" "}
+              {game.sessionCount > 0 && (
+                <a href={`sessie?game=${game.id}`}>bekijk sessies</a>
+              )}
+            </p>
+
             <a
-              href={`sessie-toevoegen/${game.id}/${game.name
+              href={`sessie/toevoegen/${game.id}/${game.name
                 .replace(/ /g, "-")
                 .replace(/[^\w-]+/g, "")
                 .toLowerCase()}`}
@@ -73,7 +77,6 @@ const boardgames = await getData();
 <script>
   const toggleSwitch = document.getElementById("playedFilter");
   const gameList = document.querySelectorAll(".board-game-item");
-  const titleList = document.querySelectorAll("h4");
   const searchBox = document.getElementById("search");
 
   toggleSwitch.addEventListener("click", () => {
@@ -90,5 +93,20 @@ const boardgames = await getData();
         }
       });
     }
+  });
+
+  searchBox.addEventListener("input", (e) => {
+    const searchValue = e.target.value.toLowerCase();
+
+    [...gameList].forEach((game) => {
+      const gameName = game.dataset.name.toLowerCase();
+
+      if (gameName.includes(searchValue)) {
+        game.classList.remove("visualy-hidden");
+        return;
+      } else {
+        game.classList.add("visualy-hidden");
+      }
+    });
   });
 </script>

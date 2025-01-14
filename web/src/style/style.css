@@ -1,6 +1,6 @@
 .layout {
   display: grid;
-  grid-template-columns: minmax(15ch, 40ch) auto;
+  grid-template-columns: minmax(15ch, 25ch) auto;
 }
 
 .board-game-list {
