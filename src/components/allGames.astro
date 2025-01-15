@@ -1,5 +1,6 @@
 ---
 export const prerender = false;
+
 import { db, isNull, count, Game_Sessions, Board_Games, eq } from "astro:db";
 
 // import { client } from "../turso";
@@ -7,7 +8,7 @@ import { db, isNull, count, Game_Sessions, Board_Games, eq } from "astro:db";
 const boardgames = await db
   .select({
     Board_Games,
-    sessionCount: count(Game_Sessions.id).as("session_count"),
+    // sessionCount: count(Game_Sessions.id).as("session_count"),
   })
 
   .from(Board_Games)
@@ -18,7 +19,7 @@ const boardgames = await db
 
 console.log(boardgames);
 if (!boardgames) {
-  return Astro.redirect("/404");
+  return Astro.redirect("/500");
 }
 ---
 
@@ -43,40 +44,40 @@ if (!boardgames) {
     <p>Totaal aantal spellen: {boardgames.length}</p>
     <div class="board-game-list">
       {
-        boardgames.map(({ Board_Games, sessionCount }) => (
-          <article
-            class="board-game-item"
-            data-played={Board_Games.played ? "true" : "false"}
-            data-name={Board_Games.name}
-          >
-            <header>
-              <h4>{Board_Games.name}</h4>
-            </header>
-            <p>
-              Voor {Board_Games.minplayers} tot {Board_Games.maxplayers}{" "}
-              spelers. (Beste voor <strong>{Board_Games.bggbestplayers}</strong>{" "}
-              spelers)
-            </p>
-            <p>
-              {sessionCount} keer gespeeld{" "}
-              {sessionCount > 0 && (
-                <a href={`sessie?game=${Board_Games.id}`}>bekijk sessies</a>
-              )}
-            </p>
+        boardgames.map(
+          ({
+            Board_Games,
+            // sessionCount
+          }) => (
+            <article
+              class="board-game-item"
+              data-played={Board_Games.played ? "true" : "false"}
+              data-name={Board_Games.name}
+            >
+              <header>
+                <h4>{Board_Games.name}</h4>
+              </header>
+              <p>
+                Voor {Board_Games.minplayers} tot {Board_Games.maxplayers}{" "}
+                spelers. (Beste voor{" "}
+                <strong>{Board_Games.bggbestplayers}</strong> spelers)
+              </p>
+              <p>Sessiecount</p>
 
-            <a
-              href={`sessie/toevoegen/${Board_Games.id}/${Board_Games.name}
+              <a
+                href={`sessie/toevoegen/${Board_Games.id}/${Board_Games.name}
                   .replace(/ /g, "-")
                   .replace(/[^\w-]+/g, "")
                   .toLowerCase()}`}
-            >
-              Sessie toevoegen
-            </a>
-            <footer class:list={[{ gespeeld: Board_Games.played }]}>
-              {Board_Games.played ? "Gepeeld" : "Niet gespeeld"}
-            </footer>
-          </article>
-        ))
+              >
+                Sessie toevoegen
+              </a>
+              <footer class:list={[{ gespeeld: Board_Games.played }]}>
+                {Board_Games.played ? "Gepeeld" : "Niet gespeeld"}
+              </footer>
+            </article>
+          )
+        )
       }
     </div>
   </section>
