@@ -1,4 +1,6 @@
 ---
+export const prerender = false;
+
 import Layout from "../layouts/layout.astro";
 
 import { db, isNull, count, Game_Sessions, Board_Games, eq } from "astro:db";
@@ -13,6 +15,10 @@ const boardgames = await db
   .where(isNull(Board_Games.deleted_at))
   .groupBy(Board_Games.id)
   .orderBy(Board_Games.name);
+
+if (!boardgames) {
+  return Astro.redirect("/404");
+}
 ---
 
 <Layout title="Board Games!" discription="Zijn echt heel leuk">
@@ -36,44 +42,39 @@ const boardgames = await db
     <p>Totaal aantal spellen: {boardgames.length}</p>
     <div class="board-game-list">
       {
-        boardgames ? (
-          // boardgames.map((game) => (
-          //   <article
-          //     class="board-game-item"
-          //     data-played={game.played ? "true" : "false"}
-          //     data-name={game.name}
-          //   >
-          //     <header>
-          //       <h4>{game.name}</h4>
-          //     </header>
-          //     <p>
-          //       Voor {game.minplayers} tot {game.maxplayers} spelers. (Beste
-          //       voor <strong>{game.bggbestplayers}</strong> spelers)
-          //     </p>
-          //     <p>
-          //       {game.sessionCount} keer gespeeld{" "}
-          //       {game.sessionCount > 0 && (
-          //         <a href={`sessie?game=${game.id}`}>bekijk sessies</a>
-          //       )}
-          //     </p>
+        boardgames.map((game) => (
+          <article
+            class="board-game-item"
+            data-played={game.played ? "true" : "false"}
+            data-name={game.name}
+          >
+            <header>
+              <h4>{game.name}</h4>
+            </header>
+            <p>
+              Voor {game.minplayers} tot {game.maxplayers} spelers. (Beste voor{" "}
+              <strong>{game.bggbestplayers}</strong> spelers)
+            </p>
+            <p>
+              {game.sessionCount} keer gespeeld{" "}
+              {game.sessionCount > 0 && (
+                <a href={`sessie?game=${game.id}`}>bekijk sessies</a>
+              )}
+            </p>
 
-          //     <a
-          //       href={`sessie/toevoegen/${game.id}/${game.name
-          //         .replace(/ /g, "-")
-          //         .replace(/[^\w-]+/g, "")
-          //         .toLowerCase()}`}
-          //     >
-          //       Sessie toevoegen
-          //     </a>
-          //     <footer class:list={[{ gespeeld: game.played }]}>
-          //       {game.played ? "Gepeeld" : "Niet gespeeld"}
-          //     </footer>
-          //   </article>
-          // ))
-          console.log(boardgames)
-        ) : (
-          <h1>Er is iets mis gegaan</h1>
-        )
+            <a
+              href={`sessie/toevoegen/${game.id}/${game.name
+                .replace(/ /g, "-")
+                .replace(/[^\w-]+/g, "")
+                .toLowerCase()}`}
+            >
+              Sessie toevoegen
+            </a>
+            <footer class:list={[{ gespeeld: game.played }]}>
+              {game.played ? "Gepeeld" : "Niet gespeeld"}
+            </footer>
+          </article>
+        ))
       }
     </div>
   </section>
