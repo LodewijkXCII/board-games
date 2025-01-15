@@ -6,10 +6,11 @@ import Layout from "../layouts/layout.astro";
 import { db, isNull, count, Game_Sessions, Board_Games, eq } from "astro:db";
 
 const boardgames = await db
-  .select({
-    ...Board_Games,
-    sessionCount: count(Game_Sessions.id).as("session_count"),
-  })
+  // .select({
+  //   ...Board_Games,
+  //   sessionCount: count(Game_Sessions.id).as("session_count"),
+  // })
+  .select()
   .from(Board_Games)
   .leftJoin(Game_Sessions, eq(Board_Games.id, Game_Sessions.board_games_id))
   .where(isNull(Board_Games.deleted_at))
@@ -55,12 +56,7 @@ if (!boardgames) {
               Voor {game.minplayers} tot {game.maxplayers} spelers. (Beste voor{" "}
               <strong>{game.bggbestplayers}</strong> spelers)
             </p>
-            <p>
-              {game.sessionCount} keer gespeeld{" "}
-              {game.sessionCount > 0 && (
-                <a href={`sessie?game=${game.id}`}>bekijk sessies</a>
-              )}
-            </p>
+            <p>'Sessie count'</p>
 
             <a
               href={`sessie/toevoegen/${game.id}/${game.name
