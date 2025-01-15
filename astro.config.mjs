@@ -1,7 +1,5 @@
 import { defineConfig } from "astro/config";
 
-import vue from "@astrojs/vue";
-
 import db from "@astrojs/db";
 
 import netlify from "@astrojs/netlify";
@@ -10,6 +8,6 @@ import netlify from "@astrojs/netlify";
 export default defineConfig({
   output: "server",
   server: { host: true },
-  integrations: [vue(), db()],
+  integrations: [db()],
   adapter: netlify({ edgeMiddleware: true }),
 });
