@@ -11,5 +11,5 @@ export default defineConfig({
   output: "server",
   server: { host: true },
   integrations: [vue(), db()],
-  adapter: netlify(),
+  adapter: netlify({ edgeMiddleware: true }),
 });
