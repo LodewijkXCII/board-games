@@ -4,26 +4,29 @@ export const prerender = false;
 import { db, isNull, count, Game_Sessions, Board_Games, eq } from "astro:db";
 
 // import { client } from "../turso";
-let boardgames;
-try {
-  boardgames = await db
-    .select({
-      Board_Games,
-      // sessionCount: count(Game_Sessions.id).as("session_count"),
-    })
 
-    .from(Board_Games)
-    .leftJoin(Game_Sessions, eq(Board_Games.id, Game_Sessions.board_games_id))
-    .where(isNull(Board_Games.deleted_at))
-    .groupBy(Board_Games.id)
-    .orderBy(Board_Games.name);
+const query = async () => {
+  return;
+};
 
-  console.log(boardgames);
-  if (!boardgames) {
-    return Astro.redirect("/500");
-  }
-} catch (error) {
-  console.error("Database query failed:", error);
+const testQuery = await db.select().from(Board_Games).limit(1);
+
+console.log(testQuery);
+
+const boardgames = await db
+  .select({
+    Board_Games,
+    // sessionCount: count(Game_Sessions.id).as("session_count"),
+  })
+
+  .from(Board_Games)
+  .leftJoin(Game_Sessions, eq(Board_Games.id, Game_Sessions.board_games_id))
+  .where(isNull(Board_Games.deleted_at))
+  .groupBy(Board_Games.id)
+  .orderBy(Board_Games.name);
+
+if (!boardgames) {
+  return Astro.redirect("/500");
 }
 ---
 
