@@ -1,17 +1,10 @@
 ---
 import Layout from "../layouts/layout.astro";
-console.log(
-  "Hi! I’m the server. This is logged in the terminal where Astro is running."
-);
+import AllGames from "../components/allGames.astro";
 ---
 
 <Layout title="Board Games!" discription="Zijn echt heel leuk">
   <section class="container-fluid">
-    <h1>We hebben geweldige pagina's</h1>
-    <a href="/boardspellen">Ga naar het spelletjes overzicht</a>
+    <AllGames />
   </section>
 </Layout>
-
-<script>
-  console.log("Hi! I’m the client. This is logged in browser dev console.");
-</script>

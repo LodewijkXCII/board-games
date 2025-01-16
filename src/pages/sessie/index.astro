@@ -1,12 +1,16 @@
 ---
 export const prerender = false;
 
-import { Board_Games } from "astro:db";
-import Layout from "../../../layouts/layout.astro";
+import Layout from "../../layouts/layout.astro";
 
-import { db, Game_Sessions as gameSession, eq } from "astro:db";
-import { Players } from "astro:db";
-import { Session_Players } from "astro:db";
+import {
+  db,
+  Game_Sessions as gameSession,
+  eq,
+  Session_Players,
+  Players,
+  Board_Games,
+} from "astro:db";
 
 let resultFilter;
 const GameID = Astro.url.searchParams.get("game");
